@@ -1,8 +1,39 @@
 const express = require("express");
 const router = express.Router();
 
-const { createUser } = require("../controllers/UserController");
+const {
+  registerUser,
+  loginUser,
+  getAllUsers,
+  deleteUser,
+  getProfile,
+  updateProfile,
+  getElectricians
+} = require("../controllers/UserController");
 
-router.post("/create", createUser);
+// ✅ ADD THESE (🔥 FIX)
+const auth = require("../middleware/auth");
+const roleMiddleware = require("../middleware/roleMiddleware");
 
+// 🔐 Auth routes
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+
+// 👨‍💼 Admin routes
+router.get("/all", auth, roleMiddleware("admin"), getAllUsers);
+router.delete("/:id", auth, roleMiddleware("admin"), deleteUser);
+
+// 👤 Get Profile
+router.get("/profile", auth, getProfile);
+
+// 👤 Update Profile
+router.put("/profile", auth, updateProfile);
+
+// 👑 Get Electricians (IMPORTANT)
+router.get(
+  "/electricians",
+  auth,
+  roleMiddleware("admin"),
+  getElectricians
+);
 module.exports = router;
